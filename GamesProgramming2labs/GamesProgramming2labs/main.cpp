@@ -101,6 +101,44 @@ void setViewport(int width, int height)
 	glLoadIdentity();
 }
 
+//Function to draw
+void render()
+{
+	//set the clear colour bkground
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	
+	//clear colour and depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//drawing stuff bit
+	//switch to model view
+	glMatrixMode(GL_MODELVIEW);
+	//reset using identity matrix
+	glLoadIdentity();
+
+	//translate to -5f on z axis(set depth)
+	glTranslatef(0.0f, 0.0f, -5.0f);
+
+	//draw triangle
+
+	glBegin(GL_TRIANGLES);
+		glColor3f(1.0f, 0.0f, 0.0f); //colour of vertices
+		glVertex3f(0.0f, 1.0f, 0.0f); // top
+		glVertex3f(-1.0f, -1.0f, 0.0f); //bottom left
+		glVertex3f(1.0f, -1.0f, 0.0f); // bottom right
+	glEnd();
+
+
+	//require to swap the front and back buffer
+	SDL_GL_SwapWindow(window);
+
+}
+
+//function to update game state
+void update()
+{
+
+}
 //Main method-entry point
 
 int main(int argc, char * arg[])
@@ -133,6 +171,9 @@ int main(int argc, char * arg[])
 			}
 
 		}
+
+		update();
+		render();
 
 	}
 
