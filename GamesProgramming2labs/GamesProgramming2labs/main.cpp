@@ -11,6 +11,13 @@
 //pointer to SDL window
 SDL_Window * window;
 
+SDL_Point vert1;
+SDL_Point vert2;
+SDL_Point vert3;
+SDL_Point vert4;
+SDL_Point vert5;
+SDL_Point vert6;
+
 //constants to control window creation
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480; 
@@ -67,6 +74,29 @@ void initOpenGL()
 
 	//turn on best perspective correction
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	
+	vert1.x = -1;
+	vert1.y = 2;
+
+	
+	vert2.x = 0;
+	vert2.y = -1;
+
+
+	vert3.x = -2;
+	vert3.y = -1;
+
+	
+	vert4.x=1;
+	vert4.y=2;
+
+	vert5.x=0;
+	vert5.y=-1;
+
+
+	vert6.x=2;
+	vert6.y=-1;
 }
 
 //function to set/reset viewport
@@ -120,12 +150,23 @@ void render()
 	glTranslatef(0.0f, 0.0f, -5.0f);
 
 	//draw triangle
+	
+	glBegin(GL_TRIANGLES);
+		glColor3f(1.0f, 0.0f, 0.0f); //colour of vertices
+		glVertex3f(vert1.x, vert1.y, 0.0f); // top
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(vert2.x, vert2.y, 0.0f); //bottom left
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex3f(vert3.x, vert3.y, 0.0f); // bottom right
+	glEnd();
 
 	glBegin(GL_TRIANGLES);
 		glColor3f(1.0f, 0.0f, 0.0f); //colour of vertices
-		glVertex3f(0.0f, 1.0f, 0.0f); // top
-		glVertex3f(-1.0f, -1.0f, 0.0f); //bottom left
-		glVertex3f(1.0f, -1.0f, 0.0f); // bottom right
+		glVertex3f(vert4.x, vert4.y, 0.0f); // top
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(vert5.x, vert5.y, 0.0f); //bottom left
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex3f(vert6.x, vert6.y, 0.0f); // bottom right
 	glEnd();
 
 
@@ -163,6 +204,41 @@ int main(int argc, char * arg[])
 	{
 		while(SDL_PollEvent(&event))
 		{
+			switch(event.type)
+			{
+			case SDL_KEYDOWN:
+				std::cout << "pressed key"<< std::endl;
+				switch( event.key.keysym.sym )
+				{
+				case SDLK_a:
+					std::cout << "pressed a"<< std::endl;
+						vert1.x-=1;
+						vert2.x-=1;
+						vert3.x-=1;
+						break;
+				case SDLK_d:
+					std::cout << "pressed d"<< std::endl;
+						vert1.x+=1;
+						vert2.x+=1;
+						vert3.x+=1;
+						break;
+				case SDLK_LEFT:
+					std::cout << "pressed left"<< std::endl;
+						vert4.x-=1;
+						vert5.x-=1;
+						vert6.x-=1;
+						break;
+				case SDLK_RIGHT:
+					std::cout << "pressed right"<< std::endl;
+						vert4.x+=1;
+						vert5.x+=1;
+						vert6.x+=1;
+						break;
+				}
+			}
+
+
+
 			//get event type
 			if(event.type ==SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
 			{
