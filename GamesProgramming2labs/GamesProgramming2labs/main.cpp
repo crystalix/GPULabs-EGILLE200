@@ -2,21 +2,132 @@
 #include <iostream>
 
 //header for sdl2 functionality
+#include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <gl\GLU.h>
+#include "Vertex.h"
 
 //global variables go here
 
 //pointer to SDL window
 SDL_Window * window;
 
-SDL_Point vert1;
-SDL_Point vert2;
-SDL_Point vert3;
-SDL_Point vert4;
-SDL_Point vert5;
-SDL_Point vert6;
+GLuint triangleVBO;
+GLuint triangleEBO;
+
+Vertex triangleData[] =
+{
+	//front
+	{-0.5f, 0.5f, 0.5f, //x, y, z
+	1.0f, 0.0f, 1.0f, 1.0f}, //r, g, b, a   Top left
+	
+	{-0.5f, -0.5f, 0.5f, //x, y, z
+	1.0f, 1.0f, 0.0f, 1.0f}, //r, g, b, a  Bottom left
+
+	{0.5f, -0.5f, 0.5f, //x, y, z
+	0.0f, 1.0f, 1.0f, 1.0f}, //r, g, b, a  bottom right
+
+	{0.5f, 0.5f, 0.5f,
+	 1.0f, 0.0f, 1.0f, 1.0f}, //top right
+
+
+	  /*left
+	 {-0.5f, 0.5f, 0.5f,
+	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
+
+	{-0.5f, -0.5f, 0.5f,
+	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
+
+	{ -0.5f, -0.5f, -0.5f,
+    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+    {-0.5f, 0.5f, -0.5f,
+     1.0f, 0.0f, 1.0f, 1.0f },// Top Right
+
+
+	 //right
+	 {0.5f, 0.5f, 0.5f,
+	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
+
+	{0.5f, -0.5f, 0.5f,
+	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
+
+	{ 0.5f, -0.5f, -0.5f,
+    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+    {0.5f, 0.5f, -0.5f,
+     1.0f, 0.0f, 1.0f, 1.0f },// Top Right
+
+	 
+	 //bottom
+	{-0.5f, -0.5f, -0.5f,
+	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
+
+	{-0.5f, -0.5f, 0.5f,
+	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
+
+	{ 0.5f, -0.5f, 0.5f,
+    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+    {0.5f, -0.5f, -0.5f,
+     1.0f, 0.0f, 1.0f, 1.0f },// Top Right
+
+	 //top
+	{-0.5f, 0.5f, -0.5f,
+	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
+
+	{-0.5f, 0.5f, 0.5f,
+	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
+
+	{ 0.5f, 0.5f, 0.5f,
+    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+    {0.5f, 0.5f, -0.5f,
+     1.0f, 0.0f, 1.0f, 1.0f },// Top Right*/
+
+
+	//back
+	{-0.5f, 0.5f, -0.5f,
+	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
+
+	{-0.5f, -0.5f, -0.5f,
+	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
+
+	{ 0.5f, -0.5f, -0.5f,
+    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+    {0.5f, 0.5f, -0.5f,
+     1.0f, 0.0f, 1.0f, 1.0f }// Top Right
+
+};
+
+GLuint indices[]=
+{
+	//front
+ 0,1,2,
+ 0,3,2,
+ 
+ //left
+ 4,5,1,
+ 4,1,0,
+ 
+ //right
+ 3,7,2,
+ 7,6,2,
+ 
+ //bottom
+ 1,5,2,
+ 6,2,1,
+ 
+ //top
+ 5,0,7,
+ 5,7,3,
+ 
+ //back
+ 4,5,6,
+ 4,7,6
+};
 
 //constants to control window creation
 const int WINDOW_WIDTH = 640;
@@ -42,6 +153,8 @@ void InitWindow(int width, int height, bool fullscreen)
 
 void CleanUp()
 {
+	glDeleteBuffers(1, &triangleEBO);
+	glDeleteBuffers(1, &triangleVBO);
 	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -75,28 +188,12 @@ void initOpenGL()
 	//turn on best perspective correction
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-	
-	vert1.x = -1;
-	vert1.y = 2;
-
-	
-	vert2.x = 0;
-	vert2.y = -1;
-
-
-	vert3.x = -2;
-	vert3.y = -1;
-
-	
-	vert4.x=1;
-	vert4.y=2;
-
-	vert5.x=0;
-	vert5.y=-1;
-
-
-	vert6.x=2;
-	vert6.y=-1;
+	GLenum err = glewInit();
+	if ( GLEW_OK != err)
+	{
+		/*Problem: Glew Init failed, something is seriously wrong*/
+		std::cout<< "Error: " <<glewGetErrorString(err) << std::endl;
+	}
 }
 
 //function to set/reset viewport
@@ -140,35 +237,41 @@ void render()
 	//clear colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	//Make the new VBO active. Repeat here as a sanity check(may have changed since initialisation)
+	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleEBO);
+
+	// the 3 parameters are now filled out, the pipeline needs to know the size of each vertex
+	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), NULL);
+
+	//The last parameter basically says that the colours start 3 floats into each element of the array
+	glColorPointer(4, GL_FLOAT, sizeof(Vertex), (void**)(3 * sizeof(float)));
+
+	//Establish array contains vertices and colours
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT,0);
+
 	//drawing stuff bit
 	//switch to model view
 	glMatrixMode(GL_MODELVIEW);
 	//reset using identity matrix
 	glLoadIdentity();
 
-	//translate to -5f on z axis(set depth)
-	glTranslatef(0.0f, 0.0f, -5.0f);
+	gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, -1.0f, 0.0, 1.0, 0.0); 
+
+	//translate to -6f on z axis(set depth)
+	glTranslatef(0.0f, 0.0f, -6.0f);
+
+	glRotatef(45.0f,1.0f,1.0f,1.0f);
 
 	//draw triangle
-	
-	glBegin(GL_TRIANGLES);
-		glColor3f(1.0f, 0.0f, 0.0f); //colour of vertices
-		glVertex3f(vert1.x, vert1.y, 0.0f); // top
-		glColor3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(vert2.x, vert2.y, 0.0f); //bottom left
-		glColor3f(0.0f, 0.0f, 1.0f);
-		glVertex3f(vert3.x, vert3.y, 0.0f); // bottom right
-	glEnd();
 
-	glBegin(GL_TRIANGLES);
-		glColor3f(1.0f, 0.0f, 0.0f); //colour of vertices
-		glVertex3f(vert4.x, vert4.y, 0.0f); // top
-		glColor3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(vert5.x, vert5.y, 0.0f); //bottom left
-		glColor3f(0.0f, 0.0f, 1.0f);
-		glVertex3f(vert6.x, vert6.y, 0.0f); // bottom right
-	glEnd();
+	glDrawArrays(GL_TRIANGLES,0,sizeof(triangleData) / (3*sizeof(float)));
 
+	/*glTranslatef(0.0f, 3.0f, -6.0f);
+	glDrawArrays(GL_TRIANGLES,0,sizeof(triangleData) / (3*sizeof(float)));*/
 
 	//require to swap the front and back buffer
 	SDL_GL_SwapWindow(window);
@@ -180,6 +283,26 @@ void update()
 {
 
 }
+
+void initGeometry()
+
+{
+	//create buffer
+	glGenBuffers(1, &triangleVBO);
+	//make the new VBO active
+	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+	//Copy vertex data to VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleData), triangleData, GL_STATIC_DRAW);
+
+	//create buffer
+	glGenBuffers(1, &triangleEBO);
+	//make EBO active
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleEBO);
+	//copy index data to EBO
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+}
+
+
 //Main method-entry point
 
 int main(int argc, char * arg[])
@@ -195,6 +318,7 @@ int main(int argc, char * arg[])
 
 	//call our init opengl function
 	initOpenGL();
+	initGeometry();
 
 	//set our viewport
 	setViewport(WINDOW_WIDTH,WINDOW_HEIGHT);
@@ -204,41 +328,6 @@ int main(int argc, char * arg[])
 	{
 		while(SDL_PollEvent(&event))
 		{
-			switch(event.type)
-			{
-			case SDL_KEYDOWN:
-				std::cout << "pressed key"<< std::endl;
-				switch( event.key.keysym.sym )
-				{
-				case SDLK_a:
-					std::cout << "pressed a"<< std::endl;
-						vert1.x-=1;
-						vert2.x-=1;
-						vert3.x-=1;
-						break;
-				case SDLK_d:
-					std::cout << "pressed d"<< std::endl;
-						vert1.x+=1;
-						vert2.x+=1;
-						vert3.x+=1;
-						break;
-				case SDLK_LEFT:
-					std::cout << "pressed left"<< std::endl;
-						vert4.x-=1;
-						vert5.x-=1;
-						vert6.x-=1;
-						break;
-				case SDLK_RIGHT:
-					std::cout << "pressed right"<< std::endl;
-						vert4.x+=1;
-						vert5.x+=1;
-						vert6.x+=1;
-						break;
-				}
-			}
-
-
-
 			//get event type
 			if(event.type ==SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE)
 			{
