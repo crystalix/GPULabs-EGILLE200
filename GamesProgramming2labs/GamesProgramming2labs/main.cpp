@@ -163,6 +163,11 @@ void CleanUp()
 //function to initialise opengl
 void initOpenGL()
 {
+	//Ask for ver 3.2 ofopengl
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
+
 	//create opengl content
 	glContext = SDL_GL_CreateContext(window);
 	//something went wrong in creating the context if its still null
@@ -188,6 +193,7 @@ void initOpenGL()
 	//turn on best perspective correction
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
+	glewExperimental = GLU_TRUE;
 	GLenum err = glewInit();
 	if ( GLEW_OK != err)
 	{
@@ -213,19 +219,7 @@ void setViewport(int width, int height)
 
 	//setup viewport
 	glViewport(0,0,(GLsizei)width, (GLsizei)height);
-
-	//change to project matrix mode
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	//calculate perspective matrix, using glu library functions
-	gluPerspective(45.0f,ratio,0.1f, 100.0f);
-
-	//switch to model view
-	glMatrixMode(GL_MODELVIEW);
-
-	//reset using identity matrix
-	glLoadIdentity();
+	
 }
 
 //Function to draw
@@ -241,37 +235,7 @@ void render()
 	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleEBO);
 
-	// the 3 parameters are now filled out, the pipeline needs to know the size of each vertex
-	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), NULL);
-
-	//The last parameter basically says that the colours start 3 floats into each element of the array
-	glColorPointer(4, GL_FLOAT, sizeof(Vertex), (void**)(3 * sizeof(float)));
-
-	//Establish array contains vertices and colours
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-
 	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT,0);
-
-	//drawing stuff bit
-	//switch to model view
-	glMatrixMode(GL_MODELVIEW);
-	//reset using identity matrix
-	glLoadIdentity();
-
-	gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, -1.0f, 0.0, 1.0, 0.0); 
-
-	//translate to -6f on z axis(set depth)
-	glTranslatef(0.0f, 0.0f, -6.0f);
-
-	glRotatef(45.0f,1.0f,1.0f,1.0f);
-
-	//draw triangle
-
-	glDrawArrays(GL_TRIANGLES,0,sizeof(triangleData) / (3*sizeof(float)));
-
-	/*glTranslatef(0.0f, 3.0f, -6.0f);
-	glDrawArrays(GL_TRIANGLES,0,sizeof(triangleData) / (3*sizeof(float)));*/
 
 	//require to swap the front and back buffer
 	SDL_GL_SwapWindow(window);
