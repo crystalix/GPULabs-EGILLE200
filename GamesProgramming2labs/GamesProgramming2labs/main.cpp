@@ -30,6 +30,7 @@ SDL_Window * window;
 
 GLuint triangleVBO;
 GLuint triangleEBO;
+GLuint VAO;
 
 GLuint	shaderProgram=0;
 
@@ -38,95 +39,30 @@ mat4 viewMatrix;
 mat4 projMatrix;
 mat4 worldMatrix;
 
-Vertex triangleData[] =
-{
-	//front
-	{-0.5f, 0.5f, 0.5f, //x, y, z
-	1.0f, 0.0f, 1.0f, 1.0f}, //r, g, b, a   Top left
-	
-	{-0.5f, -0.5f, 0.5f, //x, y, z
-	1.0f, 1.0f, 0.0f, 1.0f}, //r, g, b, a  Bottom left
+Vertex triangleData[]={
+//Front
+{ -0.5f, 0.5f, 0.5f,
+ 1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+{ -0.5f, -0.5f, 0.5f,
+ 1.0f, 1.0f, 0.0f, 1.0f },// Bottom Left
+{ 0.5f, -0.5f, 0.5f,
+ 0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+{ 0.5f, 0.5f, 0.5f,
+ 1.0f, 0.0f, 1.0f, 1.0f },// Top Right
 
-	{0.5f, -0.5f, 0.5f, //x, y, z
-	0.0f, 1.0f, 1.0f, 1.0f}, //r, g, b, a  bottom right
-
-	{0.5f, 0.5f, 0.5f,
-	 1.0f, 0.0f, 1.0f, 1.0f}, //top right
-
-
-	  /*left
-	 {-0.5f, 0.5f, 0.5f,
-	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
-
-	{-0.5f, -0.5f, 0.5f,
-	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
-
-	{ -0.5f, -0.5f, -0.5f,
-    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
-
-    {-0.5f, 0.5f, -0.5f,
-     1.0f, 0.0f, 1.0f, 1.0f },// Top Right
-
-
-	 //right
-	 {0.5f, 0.5f, 0.5f,
-	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
-
-	{0.5f, -0.5f, 0.5f,
-	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
-
-	{ 0.5f, -0.5f, -0.5f,
-    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
-
-    {0.5f, 0.5f, -0.5f,
-     1.0f, 0.0f, 1.0f, 1.0f },// Top Right
-
-	 
-	 //bottom
-	{-0.5f, -0.5f, -0.5f,
-	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
-
-	{-0.5f, -0.5f, 0.5f,
-	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
-
-	{ 0.5f, -0.5f, 0.5f,
-    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
-
-    {0.5f, -0.5f, -0.5f,
-     1.0f, 0.0f, 1.0f, 1.0f },// Top Right
-
-	 //top
-	{-0.5f, 0.5f, -0.5f,
-	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
-
-	{-0.5f, 0.5f, 0.5f,
-	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
-
-	{ 0.5f, 0.5f, 0.5f,
-    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
-
-    {0.5f, 0.5f, -0.5f,
-     1.0f, 0.0f, 1.0f, 1.0f },// Top Right*/
-
-
-	//back
-	{-0.5f, 0.5f, -0.5f,
-	 1.0f, 0.0f, 1.0f, 1.0f}, //top left
-
-	{-0.5f, -0.5f, -0.5f,
-	1.0f, 0.0f, 1.0f, 1.0f}, // bottom left
-
-	{ 0.5f, -0.5f, -0.5f,
-    0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
-
-    {0.5f, 0.5f, -0.5f,
-     1.0f, 0.0f, 1.0f, 1.0f }// Top Right
-
+//back
+{ -0.5f, 0.5f, -0.5f,
+ 1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+{ -0.5f, -0.5f, -0.5f,
+ 1.0f, 1.0f, 0.0f, 1.0f },// Bottom Left
+{ 0.5f, -0.5f, -0.5f,
+ 0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+{ 0.5f, 0.5f, -0.5f,
+ 1.0f, 0.0f, 1.0f, 1.0f },// Top Right
 };
 
-GLuint indices[]=
-{
-	//front
+GLuint indices[]={
+ //front
  0,1,2,
  0,3,2,
  
@@ -177,6 +113,7 @@ void CleanUp()
 {
 	glDeleteProgram(shaderProgram);
 	glDeleteBuffers(1, &triangleEBO);
+	glDeleteVertexArrays(1,&VAO);
 	glDeleteBuffers(1, &triangleVBO);
 	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyWindow(window);
@@ -253,6 +190,7 @@ void render()
 	
 	//clear colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glBindVertexArray(VAO);
 
 	//Make the new VBO active. Repeat here as a sanity check(may have changed since initialisation)
 	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
@@ -266,8 +204,7 @@ void render()
 	mat4 MVP = projMatrix*viewMatrix*worldMatrix;
 	glUniformMatrix4fv(MVPLocation,	1,	GL_FALSE,	glm::value_ptr(MVP));
 
-
-	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT,0);
+	glDrawElements(GL_TRIANGLES,36,GL_UNSIGNED_INT,0);
 
 	//require to swap the front and back buffer
 	SDL_GL_SwapWindow(window);
@@ -285,6 +222,8 @@ void update()
 void initGeometry()
 
 {
+	glGenVertexArrays( 1, &VAO );
+	glBindVertexArray( VAO );
 	//create buffer
 	glGenBuffers(1, &triangleVBO);
 	//make the new VBO active
